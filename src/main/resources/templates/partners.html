@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Find Partners')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <h2 class="mb-1">Find Study Partners</h2>
+    <p class="text-muted mb-4">Choose a course and how you want to be matched.</p>
+
+    <form class="card card-body mb-4" th:action="@{/partners}" method="get">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="courseId">Course</label>
+                <select class="form-select" id="courseId" name="courseId">
+                    <option value="">All my courses</option>
+                    <option th:each="c : ${currentStudent.courses}" th:value="${c.id}" th:text="${c.displayName}"
+                            th:selected="${c.id == selectedCourseId}">Course</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label" for="strategy">Match by</label>
+                <select class="form-select" id="strategy" name="strategy">
+                    <option th:each="st : ${strategies}" th:value="${st.key}" th:text="${st.displayName}"
+                            th:selected="${st.key == selectedStrategy}">Strategy</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="alert alert-info" th:if="${#lists.isEmpty(results)}">
+        No matches yet. Make sure you added courses, CGPA, study style and free time in your profile.
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6" th:each="r : ${results}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title mb-1" th:text="${r.student.fullName}">Name</h5>
+                        <span class="badge ss-score" th:text="${'Score ' + r.scoreText}">Score</span>
+                    </div>
+                    <div class="small text-muted mb-2">
+                        Semester <span th:text="${r.student.semester}">6</span> ·
+                        CGPA <span th:text="${r.student.cgpa}">3.5</span> ·
+                        <span th:text="${r.student.studyStyle.label}">Style</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="badge bg-light text-dark border me-1" th:each="c : ${r.sharedCourses}" th:text="${c.code}">SE-301</span>
+                    </div>
+                    <form class="d-flex gap-2" th:action="@{/groups/invite}" method="post" th:if="${!#lists.isEmpty(myGroups)}">
+                        <input type="hidden" name="studentId" th:value="${r.student.id}">
+                        <select class="form-select form-select-sm" name="groupId">
+                            <option th:each="g : ${myGroups}" th:value="${g.id}" th:text="${g.name}">Group</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary text-nowrap" type="submit">Invite</button>
+                    </form>
+                    <a class="btn btn-sm btn-outline-primary" th:href="@{/groups/new}" th:if="${#lists.isEmpty(myGroups)}">Create a group to invite</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

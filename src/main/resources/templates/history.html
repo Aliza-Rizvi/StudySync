@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sessions')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <h2 class="mb-4">My Sessions</h2>
+
+    <h5>Upcoming</h5>
+    <table class="table table-hover mb-5">
+        <thead><tr><th>Title</th><th>Type</th><th>Group</th><th>Date and time</th></tr></thead>
+        <tbody>
+        <tr th:each="s : ${upcoming}">
+            <td><a th:href="@{/sessions/{id}(id=${s.id})}" th:text="${s.title}">Title</a></td>
+            <td th:text="${s.typeLabel}">Online</td>
+            <td th:text="${s.group.name}">Group</td>
+            <td th:text="${#temporals.format(s.startTime, 'EEE dd MMM yyyy, hh:mm a')}">Date</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(upcoming)}"><td colspan="4" class="text-muted">No upcoming sessions.</td></tr>
+        </tbody>
+    </table>
+
+    <h5>History (past sessions)</h5>
+    <table class="table table-hover">
+        <thead><tr><th>Title</th><th>Type</th><th>Group</th><th>Date and time</th></tr></thead>
+        <tbody>
+        <tr th:each="s : ${past}">
+            <td><a th:href="@{/sessions/{id}(id=${s.id})}" th:text="${s.title}">Title</a></td>
+            <td th:text="${s.typeLabel}">Online</td>
+            <td th:text="${s.group.name}">Group</td>
+            <td th:text="${#temporals.format(s.startTime, 'EEE dd MMM yyyy, hh:mm a')}">Date</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(past)}"><td colspan="4" class="text-muted">No past sessions yet.</td></tr>
+        </tbody>
+    </table>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

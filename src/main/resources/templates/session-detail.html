@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Session')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container" th:with="s=${studySession}">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="mb-4">
+        <span class="badge bg-secondary" th:text="${s.typeLabel}">Online</span>
+        <span class="badge bg-light text-dark border" th:if="${s.finished}">Finished</span>
+        <h2 class="mt-2 mb-1" th:text="${s.title}">Title</h2>
+        <div class="text-muted">
+            <a th:href="@{/groups/{id}(id=${s.group.id})}" th:text="${s.group.name}">Group</a> ·
+            <span th:text="${#temporals.format(s.startTime, 'EEEE dd MMM yyyy, hh:mm a')}">Date</span> ·
+            <span th:text="${s.durationMinutes + ' min'}">60 min</span>
+        </div>
+        <div class="mt-1"><strong>Where:</strong> <span th:text="${s.locationDetails}">Link</span></div>
+        <div class="small text-muted">Created by <span th:text="${s.createdBy.fullName}">Name</span></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">Shared notes and resources</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="n : ${notes}">
+                        <a th:href="${n.url}" target="_blank" rel="noopener" th:text="${n.title}">Notes</a>
+                        <span class="small text-muted">by <span th:text="${n.addedBy.fullName}">Name</span></span>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(notes)}">No notes shared yet.</li>
+                </ul>
+                <div class="card-body" th:if="${isMember}">
+                    <form class="row g-2" th:action="@{/sessions/{id}/notes(id=${s.id})}" method="post">
+                        <div class="col-md-5"><input class="form-control" name="title" placeholder="Title" required></div>
+                        <div class="col-md-5"><input class="form-control" name="url" placeholder="https://drive.google.com/..." required></div>
+                        <div class="col-md-2"><button class="btn btn-outline-primary w-100">Add</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4" th:if="${isMember and !s.finished}">
+                <div class="card-header fw-semibold">Reschedule</div>
+                <div class="card-body">
+                    <form class="row g-2" th:action="@{/sessions/{id}/reschedule(id=${s.id})}" method="post">
+                        <div class="col-md-8"><input class="form-control" type="datetime-local" name="startTime" required></div>
+                        <div class="col-md-4"><button class="btn btn-outline-primary w-100"
+                                                      data-confirm="Move this session? All members will be notified.">Move</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">Attendance</div>
+                <div class="card-body">
+                    <form th:if="${isCreator}" th:action="@{/sessions/{id}/attendance(id=${s.id})}" method="post">
+                        <div class="form-check" th:each="m : ${s.group.members}">
+                            <input class="form-check-input" type="checkbox" name="presentIds" th:value="${m.id}"
+                                   th:id="${'att' + m.id}" th:checked="${presentIds.contains(m.id)}">
+                            <label class="form-check-label" th:for="${'att' + m.id}" th:text="${m.fullName}">Name</label>
+                        </div>
+                        <button class="btn btn-sm btn-primary mt-2">Save attendance</button>
+                    </form>
+                    <ul class="list-unstyled mb-0" th:if="${!isCreator}">
+                        <li th:each="m : ${s.group.members}">
+                            <span th:text="${m.fullName}">Name</span>:
+                            <span th:if="${!attendanceTaken}" class="text-muted">not marked yet</span>
+                            <span th:if="${attendanceTaken and presentIds.contains(m.id)}" class="text-success">present</span>
+                            <span th:if="${attendanceTaken and !presentIds.contains(m.id)}" class="text-danger">absent</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header fw-semibold">Ratings and feedback</div>
+                <div class="card-body" th:if="${isMember and s.finished}">
+                    <form th:action="@{/sessions/{id}/rate(id=${s.id})}" method="post">
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-7">
+                                <select class="form-select" name="ratedStudentId">
+                                    <option value="">The session itself</option>
+                                    <option th:each="m : ${s.group.members}" th:if="${m.id != me}"
+                                            th:value="${m.id}" th:text="${m.fullName}">Member</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <select class="form-select" name="stars">
+                                    <option value="5">5 - Excellent</option>
+                                    <option value="4">4 - Good</option>
+                                    <option value="3">3 - Okay</option>
+                                    <option value="2">2 - Poor</option>
+                                    <option value="1">1 - Very poor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <textarea class="form-control mb-2" name="comment" rows="2" placeholder="Comment (optional)"></textarea>
+                        <button class="btn btn-sm btn-primary">Submit rating</button>
+                    </form>
+                </div>
+                <div class="card-body text-muted" th:if="${!s.finished}">You can rate after the session ends.</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="r : ${ratings}">
+                        <span class="ss-stars" th:text="${#strings.repeat('★', r.stars)}">★★★</span>
+                        <strong th:text="${r.rater.fullName}">Rater</strong> rated
+                        <span th:text="${r.ratedStudent != null ? r.ratedStudent.fullName : 'the session'}">session</span>
+                        <div class="small text-muted" th:if="${r.comment != null and !#strings.isEmpty(r.comment)}"
+                             th:text="${r.comment}">Comment</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

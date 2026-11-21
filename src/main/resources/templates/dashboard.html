@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <h2 class="mb-1">Welcome, <span th:text="${currentStudent.fullName}">Student</span></h2>
+    <p class="text-muted mb-4">Here is your study plan at a glance.</p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="card ss-stat"><div class="card-body">
+            <div class="ss-stat-number" th:text="${#lists.size(upcoming)}">0</div><div>Upcoming sessions</div></div></div></div>
+        <div class="col-md-3"><div class="card ss-stat"><div class="card-body">
+            <div class="ss-stat-number" th:text="${#lists.size(groups)}">0</div><div>My groups</div></div></div></div>
+        <div class="col-md-3"><div class="card ss-stat"><div class="card-body">
+            <div class="ss-stat-number" th:text="${attendedCount}">0</div><div>Sessions attended</div></div></div></div>
+        <div class="col-md-3"><div class="card ss-stat"><div class="card-body">
+            <div class="ss-stat-number" th:text="${myRating != null ? #numbers.formatDecimal(myRating, 1, 1) : '-'}">-</div>
+            <div>My average rating</div></div></div></div>
+    </div>
+
+    <div class="alert alert-info" th:if="${#sets.isEmpty(currentStudent.courses)}">
+        Start here: add your courses on the <a th:href="@{/profile}">Profile</a> page,
+        then your free time on the <a th:href="@{/availability}">Availability</a> page.
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header fw-semibold">Upcoming sessions</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="s : ${upcoming}">
+                        <a th:href="@{/sessions/{id}(id=${s.id})}" class="fw-semibold" th:text="${s.title}">Title</a>
+                        <span class="badge bg-secondary ms-1" th:text="${s.typeLabel}">Online</span>
+                        <div class="small text-muted">
+                            <span th:text="${#temporals.format(s.startTime, 'EEE dd MMM, hh:mm a')}">Date</span> ·
+                            <span th:text="${s.group.name}">Group</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(upcoming)}">No upcoming sessions.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card mb-4" th:if="${!#lists.isEmpty(invites)}">
+                <div class="card-header fw-semibold">Invitations</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center" th:each="inv : ${invites}">
+                        <span th:text="${inv.group.name}">Group</span>
+                        <span>
+                            <form class="d-inline" th:action="@{/requests/{id}/accept(id=${inv.id})}" method="post">
+                                <button class="btn btn-sm btn-success">Accept</button></form>
+                            <form class="d-inline" th:action="@{/requests/{id}/reject(id=${inv.id})}" method="post">
+                                <button class="btn btn-sm btn-outline-danger">Reject</button></form>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">My groups</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="g : ${groups}">
+                        <a th:href="@{/groups/{id}(id=${g.id})}" th:text="${g.name}">Group</a>
+                        <div class="small text-muted" th:text="${g.course.displayName}">Course</div>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(groups)}">You have not joined any group yet.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header fw-semibold">Suggested groups for you</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="g : ${suggestedGroups}">
+                        <a th:href="@{/groups/{id}(id=${g.id})}" th:text="${g.name}">Group</a>
+                        <div class="small text-muted">
+                            <span th:text="${g.course.code}">Code</span> ·
+                            <span th:text="${#sets.size(g.members)} + '/' + ${g.maxMembers} + ' members'">2/6</span>
+                        </div>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(suggestedGroups)}">No suggestions right now.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Group')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h2 class="mb-1" th:text="${group.name}">Group</h2>
+            <div class="text-muted" th:text="${group.course.displayName}">Course</div>
+            <p class="mt-2" th:text="${group.description}">Description</p>
+        </div>
+        <div class="text-end">
+            <a class="btn btn-primary mb-2" th:if="${isMember}"
+               th:href="@{/groups/{id}/sessions/new(id=${group.id})}">+ Schedule session</a>
+            <form th:if="${!isMember}" th:action="@{/groups/{id}/join(id=${group.id})}" method="post">
+                <button class="btn btn-outline-primary" data-confirm="Send a join request to this group?">Request to join</button>
+            </form>
+            <form th:if="${isMember and !isCreator}" th:action="@{/groups/{id}/leave(id=${group.id})}" method="post">
+                <button class="btn btn-sm btn-outline-danger" data-confirm="Leave this group?">Leave group</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header fw-semibold">
+                    Members (<span th:text="${#sets.size(group.members)}">2</span>/<span th:text="${group.maxMembers}">6</span>)
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="m : ${group.members}">
+                        <span th:text="${m.fullName}">Name</span>
+                        <span class="badge bg-primary ms-1" th:if="${m.id == group.createdBy.id}">Creator</span>
+                    </li>
+                </ul>
+            </div>
+            <a class="btn btn-sm btn-outline-secondary mt-3" th:if="${isMember}" th:href="@{/partners(courseId=${group.course.id})}">
+                Find partners to invite</a>
+        </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header fw-semibold">Sessions</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between" th:each="s : ${sessions}">
+                        <span>
+                            <a th:href="@{/sessions/{id}(id=${s.id})}" th:text="${s.title}">Title</a>
+                            <span class="badge bg-secondary ms-1" th:text="${s.typeLabel}">Online</span>
+                            <span class="badge bg-light text-dark border ms-1" th:if="${s.finished}">Finished</span>
+                        </span>
+                        <span class="small text-muted" th:text="${#temporals.format(s.startTime, 'dd MMM, hh:mm a')}">Date</span>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(sessions)}">No sessions yet.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

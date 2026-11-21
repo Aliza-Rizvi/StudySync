@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Create Group')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h2 class="mb-4">Create a Study Group</h2>
+            <div class="alert alert-warning" th:if="${#sets.isEmpty(currentStudent.courses)}">
+                First add your courses on the <a th:href="@{/profile}">Profile</a> page.
+            </div>
+            <form class="card card-body" th:action="@{/groups}" method="post">
+                <div class="mb-3">
+                    <label class="form-label" for="name">Group name</label>
+                    <input class="form-control" id="name" name="name" placeholder="SCD Midterm Prep" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="courseId">Course</label>
+                    <select class="form-select" id="courseId" name="courseId" required>
+                        <option th:each="c : ${currentStudent.courses}" th:value="${c.id}" th:text="${c.displayName}">Course</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"
+                              placeholder="What will the group study?"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="maxMembers">Maximum members</label>
+                    <input class="form-control" type="number" min="2" th:max="${maxSize}" th:value="${maxSize}"
+                           id="maxMembers" name="maxMembers">
+                </div>
+                <button class="btn btn-primary" type="submit">Create group</button>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Profile')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <h2 class="mb-4">My Profile</h2>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header fw-semibold">Personal details and study style</div>
+                <div class="card-body">
+                    <form th:action="@{/profile}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label" for="fullName">Full name</label>
+                            <input class="form-control" id="fullName" name="fullName" th:value="${currentStudent.fullName}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input class="form-control" th:value="${currentStudent.email}" disabled>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" for="semester">Semester</label>
+                                <input class="form-control" type="number" min="1" max="8" id="semester" name="semester"
+                                       th:value="${currentStudent.semester}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" for="cgpa">CGPA</label>
+                                <input class="form-control" type="number" step="0.01" min="0" max="4" id="cgpa" name="cgpa"
+                                       th:value="${currentStudent.cgpa}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" for="department">Department</label>
+                                <input class="form-control" id="department" name="department" th:value="${currentStudent.department}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="studyStyle">How do you like to study?</label>
+                            <select class="form-select" id="studyStyle" name="studyStyle">
+                                <option th:each="st : ${styles}" th:value="${st}" th:text="${st.label}"
+                                        th:selected="${st == currentStudent.studyStyle}">Style</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Save profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header fw-semibold">My courses this semester</div>
+                <div class="card-body">
+                    <form th:action="@{/profile/courses}" method="post">
+                        <div class="form-check mb-2" th:each="c : ${allCourses}">
+                            <input class="form-check-input" type="checkbox" name="courseIds" th:value="${c.id}"
+                                   th:id="${'course' + c.id}" th:checked="${currentStudent.isEnrolledIn(c.id)}">
+                            <label class="form-check-label" th:for="${'course' + c.id}" th:text="${c.displayName}">Course</label>
+                        </div>
+                        <button class="btn btn-primary mt-2" type="submit">Save courses</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
