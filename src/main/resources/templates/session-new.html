@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Schedule Session')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h2 class="mb-1">Schedule a Session</h2>
+            <p class="text-muted mb-4">Group: <span th:text="${group.name}">Group</span></p>
+            <form class="card card-body" th:action="@{/groups/{id}/sessions(id=${group.id})}" method="post">
+                <div class="mb-3">
+                    <label class="form-label" for="sessionType">Session type</label>
+                    <select class="form-select" id="sessionType" name="type">
+                        <option th:each="t : ${types}" th:value="${t}" th:text="${t.label}">Online</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="title">Title</label>
+                    <input class="form-control" id="title" name="title" placeholder="Chapter 5 revision" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-7 mb-3">
+                        <label class="form-label" for="startTime">Date and time</label>
+                        <input class="form-control" type="datetime-local" id="startTime" name="startTime" required>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label" for="durationMinutes">Duration (minutes)</label>
+                        <input class="form-control" type="number" min="15" step="15" id="durationMinutes"
+                               name="durationMinutes" value="60">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="place" id="placeLabel">Meeting link</label>
+                    <input class="form-control" id="place" name="place" placeholder="https://meet.google.com/...">
+                </div>
+                <div class="mb-3 d-none" id="examTopicBox">
+                    <label class="form-label" for="examTopic">Exam topic</label>
+                    <input class="form-control" id="examTopic" name="examTopic" placeholder="Design Patterns, UML">
+                </div>
+                <button class="btn btn-primary" type="submit">Schedule and notify members</button>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

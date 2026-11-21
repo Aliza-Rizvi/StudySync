@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Notifications')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <h2 class="mb-4">Notifications</h2>
+    <div class="list-group">
+        <a class="list-group-item list-group-item-action" th:each="n : ${notifications}"
+           th:href="${n.link != null ? n.link : '#'}" th:classappend="${newIds.contains(n.id)} ? 'ss-new' : ''">
+            <div class="d-flex justify-content-between">
+                <span th:text="${n.message}">Message</span>
+                <span class="badge bg-warning text-dark" th:if="${newIds.contains(n.id)}">New</span>
+            </div>
+            <div class="small text-muted" th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</div>
+        </a>
+        <div class="list-group-item text-muted" th:if="${#lists.isEmpty(notifications)}">No notifications yet.</div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
