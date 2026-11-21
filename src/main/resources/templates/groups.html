@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Groups')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Study Groups</h2>
+        <a class="btn btn-primary" th:href="@{/groups/new}">+ Create group</a>
+    </div>
+
+    <div class="card mb-4" th:if="${!#lists.isEmpty(joinRequests)}">
+        <div class="card-header fw-semibold">Join requests for your groups</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center" th:each="req : ${joinRequests}">
+                <span><strong th:text="${req.student.fullName}">Name</strong> wants to join
+                    <span th:text="${req.group.name}">Group</span></span>
+                <span>
+                    <form class="d-inline" th:action="@{/requests/{id}/accept(id=${req.id})}" method="post">
+                        <button class="btn btn-sm btn-success">Accept</button></form>
+                    <form class="d-inline" th:action="@{/requests/{id}/reject(id=${req.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger">Reject</button></form>
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card mb-4" th:if="${!#lists.isEmpty(invites)}">
+        <div class="card-header fw-semibold">Invitations for you</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center" th:each="inv : ${invites}">
+                <span>Join <strong th:text="${inv.group.name}">Group</strong>
+                    (<span th:text="${inv.group.course.code}">SE-301</span>)</span>
+                <span>
+                    <form class="d-inline" th:action="@{/requests/{id}/accept(id=${inv.id})}" method="post">
+                        <button class="btn btn-sm btn-success">Accept</button></form>
+                    <form class="d-inline" th:action="@{/requests/{id}/reject(id=${inv.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger">Reject</button></form>
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <h5>My groups</h5>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4" th:each="g : ${myGroups}">
+            <div class="card h-100"><div class="card-body">
+                <h5><a th:href="@{/groups/{id}(id=${g.id})}" th:text="${g.name}">Group</a></h5>
+                <div class="small text-muted mb-2" th:text="${g.course.displayName}">Course</div>
+                <span class="badge bg-light text-dark border" th:text="${#sets.size(g.members)} + '/' + ${g.maxMembers} + ' members'">2/6</span>
+            </div></div>
+        </div>
+        <div class="col-12 text-muted" th:if="${#lists.isEmpty(myGroups)}">You are not in any group yet.</div>
+    </div>
+
+    <h5>Suggested groups (your courses)</h5>
+    <div class="row g-3">
+        <div class="col-md-4" th:each="g : ${suggestedGroups}">
+            <div class="card h-100"><div class="card-body">
+                <h5><a th:href="@{/groups/{id}(id=${g.id})}" th:text="${g.name}">Group</a></h5>
+                <div class="small text-muted mb-2" th:text="${g.course.displayName}">Course</div>
+                <form th:action="@{/groups/{id}/join(id=${g.id})}" method="post">
+                    <button class="btn btn-sm btn-outline-primary" data-confirm="Send a join request to this group?">Request to join</button>
+                </form>
+            </div></div>
+        </div>
+        <div class="col-12 text-muted" th:if="${#lists.isEmpty(suggestedGroups)}">No suggestions right now.</div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
