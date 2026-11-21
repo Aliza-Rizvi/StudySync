@@ -1,0 +1,63 @@
+/* StudySync custom styles (Bootstrap does most of the work) */
+:root {
+    --ss-primary: #4f46e5;
+    --ss-primary-dark: #3730a3;
+    --ss-bg: #f5f6fb;
+}
+
+body {
+    background: var(--ss-bg);
+}
+
+.ss-navbar {
+    background: linear-gradient(90deg, var(--ss-primary-dark), var(--ss-primary));
+}
+
+.ss-auth {
+    background: linear-gradient(160deg, #eef0ff 0%, var(--ss-bg) 60%);
+    min-height: 100vh;
+}
+
+.ss-brand {
+    color: var(--ss-primary);
+}
+
+.btn-primary {
+    background-color: var(--ss-primary);
+    border-color: var(--ss-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--ss-primary-dark);
+    border-color: var(--ss-primary-dark);
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.ss-stat .ss-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ss-primary);
+}
+
+.ss-score {
+    background: #e0e7ff;
+    color: var(--ss-primary-dark);
+}
+
+.ss-stars {
+    color: #f59e0b;
+}
+
+.ss-new {
+    border-left: 4px solid #f59e0b;
+}
